@@ -1,0 +1,39 @@
+From f4e74e4c7644906b3258841df7a7853c5a37af02 Mon Sep 17 00:00:00 2001
+From: Alwin Esch <alwin.esch@web.de>
+Date: Mon, 11 Mar 2019 01:29:22 +0100
+Subject: [PATCH] fix libdrm build by define MAJOR_IN_MKDEV or
+ MAJOR_IN_SYSMACROS
+
+---
+ third_party/libdrm/BUILD.gn | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/third_party/libdrm/BUILD.gn b/third_party/libdrm/BUILD.gn
+index a3fed9d6949e..945635208e28 100644
+--- third_party/libdrm/BUILD.gn
++++ third_party/libdrm/BUILD.gn
+@@ -3,10 +3,21 @@
+ # found in the LICENSE file.
+ assert(is_linux)
+ 
++declare_args() {
++  # To set the for drm required defines MAJOR_IN_MKDEV or MAJOR_IN_SYSMACROS
++  use_mkdev = false
++}
++
+ config("libdrm_config") {
+   # TODO(thomasanderson): Remove this hack once
+   # https://patchwork.kernel.org/patch/10545295/ lands.
+   defines = [ "typeof(x)=__typeof__(x)" ]
++  if (use_mkdev) {
++    defines += [ "MAJOR_IN_MKDEV" ]
++  }
++  else {
++    defines += [ "MAJOR_IN_SYSMACROS" ]
++  }
+ 
+   include_dirs = [
+     "src",
+-- 
+2.20.1
+

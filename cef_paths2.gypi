@@ -69,6 +69,9 @@
     'includes_wrapper_mac': [
       'include/wrapper/cef_library_loader.h',
     ],
+    'includes_wrapper_linux': [
+      'include/wrapper/cef_library_loader.h',
+    ],
     'includes_win': [
       'include/base/internal/cef_atomicops_x86_msvc.h',
       'include/base/internal/cef_bind_internal_win.h',
@@ -152,6 +155,9 @@
     ],
     'libcef_dll_wrapper_sources_mac': [
       'libcef_dll/wrapper/cef_library_loader_mac.mm',
+      'libcef_dll/wrapper/libcef_dll_dylib.cc',
+    ],
+    'libcef_dll_wrapper_sources_linux': [
       'libcef_dll/wrapper/libcef_dll_dylib.cc',
     ],
     'shared_sources_browser': [

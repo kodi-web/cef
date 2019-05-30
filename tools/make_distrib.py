@@ -1160,6 +1160,12 @@ elif platform == 'linux':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
                         'include/', include_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper_linux'], \
+                        'include/', include_dir, options.quiet)
+
+    # transfer libcef_dll_wrapper files
+    transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_linux'], \
+                      'libcef_dll/', libcef_dll_dir, options.quiet)
 
     # transfer additional files, if any
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'linux'), \

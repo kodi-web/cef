@@ -48,3 +48,6 @@ Thumbs.db
 # CEF generated files
 /include/cef_version.h
 .ccls-cache/
+.kdev4/
+*.kdev4
+.vs/
