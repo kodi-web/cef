@@ -48,12 +48,12 @@ std::string GetFrameworkPath(bool helper) {
 
 CefScopedLibraryLoader::CefScopedLibraryLoader() : loaded_(false) {}
 
-bool CefScopedLibraryLoader::Load(bool helper) {
+bool CefScopedLibraryLoader::Load(bool helper, const std::string& mainPath) {
   if (loaded_) {
     return false;
   }
 
-  const std::string& framework_path = GetFrameworkPath(helper);
+  const std::string& framework_path = !mainPath.empty() ? mainPath : GetFrameworkPath(helper);
   if (framework_path.empty()) {
     fprintf(stderr, "App does not have the expected bundle structure.\n");
     return false;

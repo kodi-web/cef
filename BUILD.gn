@@ -1031,6 +1031,9 @@ static_library("libcef_dll_wrapper") {
   if (is_mac) {
     sources += gypi_paths2.libcef_dll_wrapper_sources_mac
   }
+  if (is_linux) {
+    sources += gypi_paths2.libcef_dll_wrapper_sources_linux
+  }
 
   defines = [ "WRAPPING_CEF_SHARED" ]
 
