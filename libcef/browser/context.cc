@@ -40,6 +40,8 @@
 #include "components/crash/content/app/crashpad.h"
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
+#elif defined(OS_LINUX)
+#include "sandbox/linux/services/credentials.h"
 #endif
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
@@ -337,6 +339,15 @@ void CefSetOSModalLoop(bool osModalLoop) {
   else
     CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
 #endif  // defined(OS_WIN)
+}
+
+bool CefSandboxNeedRoot() {
+  // Only linux need root, to all others give false
+#if !defined(OS_LINUX)
+  return false;
+#else
+  return !sandbox::Credentials::CanCreateProcessInNewUserNS();
+#endif
 }
 
 // CefContext
