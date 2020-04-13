@@ -71,6 +71,10 @@ class BrowserWindowOsrMac : public BrowserWindow,
                const void* buffer,
                int width,
                int height) OVERRIDE;
+  void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          void* share_handle) OVERRIDE;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       CefRenderHandler::CursorType type,

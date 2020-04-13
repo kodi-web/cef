@@ -43,7 +43,8 @@ std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
       use_external_begin_frame);
 #elif defined(OS_MACOSX)
   return std::make_unique<CefBrowserPlatformDelegateNativeMac>(
-      window_info, background_color);
+      window_info, background_color, use_shared_texture,
+      use_external_begin_frame);
 #elif defined(OS_LINUX)
   return std::make_unique<CefBrowserPlatformDelegateNativeLinux>(
       window_info, background_color, use_external_begin_frame);

@@ -143,11 +143,13 @@ NSUInteger NativeModifiers(int cef_modifiers) {
 
 CefBrowserPlatformDelegateNativeMac::CefBrowserPlatformDelegateNativeMac(
     const CefWindowInfo& window_info,
-    SkColor background_color)
+    SkColor background_color,
+    bool use_shared_texture,
+    bool use_external_begin_frame)
     : CefBrowserPlatformDelegateNative(window_info,
                                        background_color,
-                                       false,
-                                       false),
+                                       use_shared_texture,
+                                       use_external_begin_frame),
       host_window_created_(false) {}
 
 void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
@@ -429,7 +431,8 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWheelEvent(
   result.delta_y = deltaY;
   result.wheel_ticks_x = deltaX / scrollbarPixelsPerCocoaTick;
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerCocoaTick;
-  result.delta_units = ui::input_types::ScrollGranularity::kScrollByPrecisePixel;
+  result.delta_units =
+      ui::input_types::ScrollGranularity::kScrollByPrecisePixel;
 
   if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
     result.button = blink::WebMouseEvent::Button::kLeft;

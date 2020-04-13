@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 0108c8926630..dc2aff882c72 100644
+index 0108c8926630..d7459d5fa74c 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -46,9 +46,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -18,21 +18,33 @@ index 0108c8926630..dc2aff882c72 100644
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -56,8 +61,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -56,8 +61,12 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
 -}
  #endif
 +}
++
++void HostDisplayClient::CreateExternalRendererUpdater(
++    mojom::ExternalRendererUpdaterRequest request) {
++}
  
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
  void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index af01fab0ac13..b1ed612ddb0f 100644
+index af01fab0ac13..052672373b7c 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -30,17 +30,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -14,6 +14,7 @@
+ #include "components/viz/host/viz_host_export.h"
+ #include "mojo/public/cpp/bindings/binding.h"
+ #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
++#include "cef/libcef/browser/osr/external_renderer_updater.mojom.h"
+ #include "ui/gfx/native_widget_types.h"
+ 
+ namespace viz {
+@@ -30,17 +31,19 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    mojom::DisplayClientPtr GetBoundPtr(
        scoped_refptr<base::SingleThreadTaskRunner> task_runner);
  
@@ -50,6 +62,8 @@ index af01fab0ac13..b1ed612ddb0f 100644
    void CreateLayeredWindowUpdater(
        mojo::PendingReceiver<mojom::LayeredWindowUpdater> receiver) override;
 -#endif
++
++  void CreateExternalRendererUpdater(mojom::ExternalRendererUpdaterRequest request) override;
  
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
    void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
@@ -80,31 +94,57 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index be420915d729..4bb7456d0279 100644
+index be420915d729..83e2f76e9904 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -13,6 +13,8 @@ config("viz_service_implementation") {
+@@ -13,6 +13,10 @@ config("viz_service_implementation") {
  
  viz_component("service") {
    sources = [
++    "//cef/libcef/browser/osr/gl_output_surface_external.cc",
++    "//cef/libcef/browser/osr/gl_output_surface_external.h",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.cc",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.h",
      "display/bsp_tree.cc",
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index e17b24a8b87b..b408b6a262a5 100644
+index e17b24a8b87b..16dd76b6e4a8 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -12,6 +12,7 @@
+@@ -12,6 +12,8 @@
  #include "base/compiler_specific.h"
  #include "base/threading/thread_task_runner_handle.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
++#include "cef/libcef/browser/osr/gl_output_surface_external.h"
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -223,6 +224,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -177,8 +179,20 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
+     }
+ 
+     if (surface_handle == gpu::kNullSurfaceHandle) {
+-      output_surface = std::make_unique<GLOutputSurfaceOffscreen>(
+-          std::move(context_provider));
++      mojo::ScopedAllowSyncCallForTesting allow_sync;
++      bool use_proxy_output_device = false;
++      if (display_client->UseProxyOutputDevice(&use_proxy_output_device) &&
++          use_proxy_output_device) {
++        mojom::ExternalRendererUpdaterPtr external_renderer_updater;
++        display_client->CreateExternalRendererUpdater(
++            mojo::MakeRequest(&external_renderer_updater));
++        output_surface = std::make_unique<GLOutputSurfaceExternal>(
++            std::move(context_provider), gpu_memory_buffer_manager_.get(),
++            std::move(external_renderer_updater));
++      } else {
++        output_surface = std::make_unique<GLOutputSurfaceOffscreen>(
++            std::move(context_provider));
++      }
+     } else if (context_provider->ContextCapabilities().surfaceless) {
+ #if defined(USE_OZONE)
+       output_surface = std::make_unique<GLOutputSurfaceBufferQueue>(
+@@ -223,6 +237,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -162,11 +202,31 @@ index ac94eab98fd0..b89d52a0c869 100644
    // END ALLOWED USAGE.
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
+diff --git services/viz/privileged/mojom/compositing/BUILD.gn services/viz/privileged/mojom/compositing/BUILD.gn
+index 75e2ff88e837..bde3239a6af9 100644
+--- services/viz/privileged/mojom/compositing/BUILD.gn
++++ services/viz/privileged/mojom/compositing/BUILD.gn
+@@ -18,6 +18,7 @@ mojom("compositing") {
+   ]
+ 
+   public_deps = [
++    "//cef/libcef/browser/osr",
+     "//gpu/ipc/common:interfaces",
+     "//media/capture/mojom:video_capture",
+     "//media/mojo/mojom",
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 1e456c111b83..d345914271f9 100644
+index 1e456c111b83..861974ba36f0 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -79,12 +79,14 @@ interface DisplayPrivate {
+@@ -13,6 +13,7 @@ import "ui/gfx/mojom/transform.mojom";
+ import "ui/gfx/geometry/mojom/geometry.mojom";
+ import "ui/latency/mojom/latency_info.mojom";
+ import "services/viz/privileged/mojom/compositing/layered_window_updater.mojom";
++import "cef/libcef/browser/osr/external_renderer_updater.mojom";
+ import "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom";
+ 
+ // See ui/compositor/compositor.h: ContextFactoryPrivate.
+@@ -79,14 +80,19 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -181,7 +241,12 @@ index 1e456c111b83..d345914271f9 100644
 -  [EnableIf=is_win]
    CreateLayeredWindowUpdater(pending_receiver<LayeredWindowUpdater> receiver);
  
++  // Creates a ExternalRendererUpdater
++  CreateExternalRendererUpdater(ExternalRendererUpdater& external_renderer_updater);
++
    // Notifies that a swap has occurred and provides information about the pixel
+   // size of the swapped frame.
+   [EnableIf=is_android]
 diff --git services/viz/privileged/mojom/compositing/layered_window_updater.mojom services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 index 6b7fbb6cf13d..e2af75168cb9 100644
 --- services/viz/privileged/mojom/compositing/layered_window_updater.mojom
