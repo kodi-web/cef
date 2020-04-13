@@ -1,7 +1,7 @@
-diff --git a/components/viz/host/host_display_client.cc b/components/viz/host/host_display_client.cc
+diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
 index 3547ee865c22..2ddc4f31940c 100644
---- a/components/viz/host/host_display_client.cc
-+++ b/components/viz/host/host_display_client.cc
+--- components/viz/host/host_display_client.cc
++++ components/viz/host/host_display_client.cc
 @@ -43,9 +43,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
@@ -32,10 +32,10 @@ index 3547ee865c22..2ddc4f31940c 100644
  
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
  void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
-diff --git a/components/viz/host/host_display_client.h b/components/viz/host/host_display_client.h
+diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
 index cedf833d2358..67ce2f6bd97b 100644
---- a/components/viz/host/host_display_client.h
-+++ b/components/viz/host/host_display_client.h
+--- components/viz/host/host_display_client.h
++++ components/viz/host/host_display_client.h
 @@ -15,6 +15,7 @@
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "mojo/public/cpp/bindings/receiver.h"
@@ -67,10 +67,10 @@ index cedf833d2358..67ce2f6bd97b 100644
  
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
    void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
-diff --git a/components/viz/host/layered_window_updater_impl.cc b/components/viz/host/layered_window_updater_impl.cc
+diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
 index b04f654fe820..131977a36591 100644
---- a/components/viz/host/layered_window_updater_impl.cc
-+++ b/components/viz/host/layered_window_updater_impl.cc
+--- components/viz/host/layered_window_updater_impl.cc
++++ components/viz/host/layered_window_updater_impl.cc
 @@ -44,7 +44,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
    // |region|'s handle will close when it goes out of scope.
  }
@@ -80,10 +80,10 @@ index b04f654fe820..131977a36591 100644
    TRACE_EVENT0("viz", "LayeredWindowUpdaterImpl::Draw");
  
    if (!canvas_) {
-diff --git a/components/viz/host/layered_window_updater_impl.h b/components/viz/host/layered_window_updater_impl.h
+diff --git components/viz/host/layered_window_updater_impl.h components/viz/host/layered_window_updater_impl.h
 index 1026b739d283..fe562ab60ce9 100644
---- a/components/viz/host/layered_window_updater_impl.h
-+++ b/components/viz/host/layered_window_updater_impl.h
+--- components/viz/host/layered_window_updater_impl.h
++++ components/viz/host/layered_window_updater_impl.h
 @@ -35,7 +35,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
    // mojom::LayeredWindowUpdater implementation.
    void OnAllocatedSharedMemory(const gfx::Size& pixel_size,
@@ -93,10 +93,10 @@ index 1026b739d283..fe562ab60ce9 100644
  
   private:
    const HWND hwnd_;
-diff --git a/components/viz/service/BUILD.gn b/components/viz/service/BUILD.gn
+diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
 index ca67f58b73cc..a1a7cb61badd 100644
---- a/components/viz/service/BUILD.gn
-+++ b/components/viz/service/BUILD.gn
+--- components/viz/service/BUILD.gn
++++ components/viz/service/BUILD.gn
 @@ -14,6 +14,10 @@ config("viz_service_implementation") {
  
  viz_component("service") {
@@ -108,10 +108,10 @@ index ca67f58b73cc..a1a7cb61badd 100644
      "display/bsp_tree.cc",
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
-diff --git a/components/viz/service/display_embedder/output_surface_provider_impl.cc b/components/viz/service/display_embedder/output_surface_provider_impl.cc
+diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
 index 6f2eac863d1b..030b4e5ec5b0 100644
---- a/components/viz/service/display_embedder/output_surface_provider_impl.cc
-+++ b/components/viz/service/display_embedder/output_surface_provider_impl.cc
+--- components/viz/service/display_embedder/output_surface_provider_impl.cc
++++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -12,6 +12,8 @@
  #include "base/compiler_specific.h"
  #include "base/threading/thread_task_runner_handle.h"
@@ -165,10 +165,10 @@ index 6f2eac863d1b..030b4e5ec5b0 100644
  #if defined(OS_WIN)
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
-diff --git a/components/viz/service/display_embedder/software_output_device_win.cc b/components/viz/service/display_embedder/software_output_device_win.cc
+diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
 index bb07c338fac5..60441480f981 100644
---- a/components/viz/service/display_embedder/software_output_device_win.cc
-+++ b/components/viz/service/display_embedder/software_output_device_win.cc
+--- components/viz/service/display_embedder/software_output_device_win.cc
++++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -268,8 +268,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
@@ -181,10 +181,10 @@ index bb07c338fac5..60441480f981 100644
    waiting_on_draw_ack_ = true;
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
-diff --git a/mojo/public/cpp/bindings/sync_call_restrictions.h b/mojo/public/cpp/bindings/sync_call_restrictions.h
+diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
 index ac94eab98fd0..b89d52a0c869 100644
---- a/mojo/public/cpp/bindings/sync_call_restrictions.h
-+++ b/mojo/public/cpp/bindings/sync_call_restrictions.h
+--- mojo/public/cpp/bindings/sync_call_restrictions.h
++++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -29,6 +29,7 @@ class HostContextFactoryPrivate;
  
  namespace viz {
@@ -202,10 +202,10 @@ index ac94eab98fd0..b89d52a0c869 100644
    // END ALLOWED USAGE.
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
-diff --git a/services/viz/privileged/mojom/compositing/BUILD.gn b/services/viz/privileged/mojom/compositing/BUILD.gn
+diff --git services/viz/privileged/mojom/compositing/BUILD.gn services/viz/privileged/mojom/compositing/BUILD.gn
 index 75e2ff88e837..bde3239a6af9 100644
---- a/services/viz/privileged/mojom/compositing/BUILD.gn
-+++ b/services/viz/privileged/mojom/compositing/BUILD.gn
+--- services/viz/privileged/mojom/compositing/BUILD.gn
++++ services/viz/privileged/mojom/compositing/BUILD.gn
 @@ -18,6 +18,7 @@ mojom("compositing") {
    ]
  
@@ -214,10 +214,10 @@ index 75e2ff88e837..bde3239a6af9 100644
      "//gpu/ipc/common:interfaces",
      "//media/capture/mojom:video_capture",
      "//media/mojo/mojom",
-diff --git a/services/viz/privileged/mojom/compositing/display_private.mojom b/services/viz/privileged/mojom/compositing/display_private.mojom
+diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
 index be56099d186f..f164ee8fa8fa 100644
---- a/services/viz/privileged/mojom/compositing/display_private.mojom
-+++ b/services/viz/privileged/mojom/compositing/display_private.mojom
+--- services/viz/privileged/mojom/compositing/display_private.mojom
++++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -13,6 +13,7 @@ import "ui/gfx/mojom/transform.mojom";
  import "ui/gfx/geometry/mojom/geometry.mojom";
  import "ui/latency/mojom/latency_info.mojom";
@@ -247,10 +247,10 @@ index be56099d186f..f164ee8fa8fa 100644
    // Notifies that a swap has occurred and provides information about the pixel
    // size of the swapped frame.
    [EnableIf=is_android]
-diff --git a/services/viz/privileged/mojom/compositing/layered_window_updater.mojom b/services/viz/privileged/mojom/compositing/layered_window_updater.mojom
+diff --git services/viz/privileged/mojom/compositing/layered_window_updater.mojom services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 index 6b7fbb6cf13d..e2af75168cb9 100644
---- a/services/viz/privileged/mojom/compositing/layered_window_updater.mojom
-+++ b/services/viz/privileged/mojom/compositing/layered_window_updater.mojom
+--- services/viz/privileged/mojom/compositing/layered_window_updater.mojom
++++ services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 @@ -26,5 +26,5 @@ interface LayeredWindowUpdater {
    // Draws to the HWND by copying pixels from shared memory. Callback must be
    // called after draw operation is complete to signal shared memory can be
@@ -258,10 +258,10 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 -  Draw() => ();
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
-diff --git a/ui/compositor/compositor.h b/ui/compositor/compositor.h
+diff --git ui/compositor/compositor.h ui/compositor/compositor.h
 index 5410ee7a65ab..e5bf8c301c1c 100644
---- a/ui/compositor/compositor.h
-+++ b/ui/compositor/compositor.h
+--- ui/compositor/compositor.h
++++ ui/compositor/compositor.h
 @@ -23,7 +23,9 @@
  #include "cc/trees/layer_tree_host_single_thread_client.h"
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
@@ -306,10 +306,10 @@ index 5410ee7a65ab..e5bf8c301c1c 100644
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
  
-diff --git a/ui/compositor/host/host_context_factory_private.cc b/ui/compositor/host/host_context_factory_private.cc
+diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
 index d8c278b99d09..d6f9bd858627 100644
---- a/ui/compositor/host/host_context_factory_private.cc
-+++ b/ui/compositor/host/host_context_factory_private.cc
+--- ui/compositor/host/host_context_factory_private.cc
++++ ui/compositor/host/host_context_factory_private.cc
 @@ -113,8 +113,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(
    compositor_data.display_private.reset();
    root_params->display_private =
