@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 
+#include "libcef/browser/audio_capturer.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
@@ -191,6 +192,14 @@ void OnDownloadImage(uint32 max_image_size,
 
   callback->OnDownloadImageFinished(image_url.spec(), http_status_code,
                                     image_impl.get());
+}
+
+static constexpr base::TimeDelta kRecentlyAudibleTimeout =
+    base::TimeDelta::FromSeconds(2);
+
+const base::TickClock* GetDefaultTickClock() {
+  static base::NoDestructor<base::DefaultTickClock> default_tick_clock;
+  return default_tick_clock.get();
 }
 
 }  // namespace
@@ -1538,6 +1547,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
     menu_manager_->Destroy();
   DestroyExtensionHost();
 
+  DestroyAudioCapturer();
+
   // Notify any observers that may have state associated with this browser.
   for (auto& observer : observers_)
     observer.OnBrowserDestroyed(this);
@@ -2696,6 +2707,41 @@ void CefBrowserHostImpl::DidUpdateFaviconURL(
   }
 }
 
+void CefBrowserHostImpl::OnAudioStateChanged(bool audible) {
+  if (!audio_capturer_.get())
+    return;
+
+  // If audio is stopping remember the time at which it stopped and set a timer
+  // to fire the recently audible transition.
+  if (!audible) {
+    last_audible_time_ = tick_clock_->NowTicks();
+    recently_audible_timer_.Start(
+        FROM_HERE, kRecentlyAudibleTimeout,
+        base::BindOnce(&CefBrowserHostImpl::OnRecentlyAudibleTimerFired, this));
+    return;
+  }
+
+  bool was_recently_audible = WasRecentlyAudible();
+  last_audible_time_ = base::TimeTicks::Max();
+  recently_audible_timer_.Stop();
+  if (!was_recently_audible)
+    audio_capturer_->Start();
+}
+
+void CefBrowserHostImpl::OnRecentlyAudibleTimerFired() {
+  audio_capturer_->Stop();
+}
+
+bool CefBrowserHostImpl::WasRecentlyAudible() const {
+  if (last_audible_time_.is_max())
+    return true;
+  if (last_audible_time_.is_null())
+    return false;
+  base::TimeTicks recently_audible_time_limit =
+      last_audible_time_ + kRecentlyAudibleTimeout;
+  return tick_clock_->NowTicks() < recently_audible_time_limit;
+}
+
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   // Handle the cursor message here if mouse cursor change is disabled instead
   // of propegating the message to the normal handler.
@@ -2791,6 +2837,33 @@ bool CefBrowserHostImpl::HasObserver(Observer* observer) const {
   return observers_.HasObserver(observer);
 }
 
+void CefBrowserHostImpl::CreateAudioCapturer() {
+  if (client_.get()) {
+    CefRefPtr<CefAudioHandler> audio_handler = client_->GetAudioHandler();
+    if (audio_handler.get()) {
+      CefAudioParameters params;
+      params.channel_layout = CEF_CHANNEL_LAYOUT_STEREO;
+      params.sample_rate = media::AudioParameters::kAudioCDSampleRate;
+      params.frames_per_buffer =
+          (media::AudioParameters::kAudioCDSampleRate / 100) << 1;
+      if (audio_handler->GetAudioParameters(this, 0, params)) {
+        audio_capturer_.reset(
+            new CefAudioCapturer(params, this, audio_handler));
+        if (web_contents()->IsCurrentlyAudible())
+          last_audible_time_ = base::TimeTicks::Max();
+      }
+    }
+  }
+}
+
+void CefBrowserHostImpl::DestroyAudioCapturer() {
+  if (audio_capturer_.get()) {
+    recently_audible_timer_.Stop();
+    audio_capturer_->Stop();
+    audio_capturer_.reset();
+  }
+}
+
 CefBrowserHostImpl::NavigationLock::NavigationLock(
     CefRefPtr<CefBrowserHostImpl> browser)
     : browser_(browser) {
@@ -2874,7 +2947,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
       devtools_frontend_(nullptr),
-      extension_(extension) {
+      extension_(extension),
+      tick_clock_(GetDefaultTickClock()) {
   if (opener.get() && !platform_delegate_->IsViewsHosted()) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted
     // popup browsers.
@@ -2913,6 +2987,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
+
+  CreateAudioCapturer();
 
   // Associate the platform delegate with this browser.
   platform_delegate_->BrowserCreated(this);

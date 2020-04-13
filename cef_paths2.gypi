@@ -70,6 +70,9 @@
     'includes_wrapper_mac': [
       'include/wrapper/cef_library_loader.h',
     ],
+    'includes_wrapper_linux': [
+      'include/wrapper/cef_library_loader.h',
+    ],
     'includes_win': [
       'include/base/internal/cef_atomicops_arm64_msvc.h',
       'include/base/internal/cef_atomicops_x86_msvc.h',
@@ -155,6 +158,9 @@
     ],
     'libcef_dll_wrapper_sources_mac': [
       'libcef_dll/wrapper/cef_library_loader_mac.mm',
+      'libcef_dll/wrapper/libcef_dll_dylib.cc',
+    ],
+    'libcef_dll_wrapper_sources_linux': [
       'libcef_dll/wrapper/libcef_dll_dylib.cc',
     ],
     'shared_sources_browser': [
@@ -458,6 +464,7 @@
       'tests/cefsimple/simple_handler_linux.cc',
     ],
     'ceftests_sources_common': [
+      'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
       'tests/ceftests/cookie_unittest.cc',
@@ -557,6 +564,7 @@
       'tests/shared/browser/resource_util.h',
       'tests/shared/browser/resource_util_mac.mm',
       'tests/shared/browser/resource_util_posix.cc',
+      'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/client_app_delegates.cc',
       'tests/ceftests/cookie_unittest.cc',
       'tests/ceftests/dom_unittest.cc',

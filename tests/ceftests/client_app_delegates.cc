@@ -23,6 +23,10 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   extern void CreatePreferenceBrowserTests(ClientAppBrowser::DelegateSet &
                                            delegates);
   CreatePreferenceBrowserTests(delegates);
+
+  // Bring in audio output tests.
+  extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
+  CreateAudioOutputTests(delegates);
 }
 
 void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
