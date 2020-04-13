@@ -1,0 +1,38 @@
+From afbf64a78d80ad9438833ef478a823093208de91 Mon Sep 17 00:00:00 2001
+From: Alwin Esch <alwin.esch@web.de>
+Date: Sat, 30 Mar 2019 15:20:15 +0100
+Subject: [PATCH] use on audio only dummy output
+
+---
+ media/audio/audio_manager.cc | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git media/audio/audio_manager.cc media/audio/audio_manager.cc
+index 97871cd9e30d..7ba82e039714 100644
+--- media/audio/audio_manager.cc
++++ media/audio/audio_manager.cc
+@@ -20,6 +20,7 @@
+ #include "base/thread_annotations.h"
+ #include "build/build_config.h"
+ #include "media/audio/fake_audio_log_factory.h"
++#include "media/audio/fake_audio_manager.h"
+ #include "media/base/media_switches.h"
+ 
+ #if defined(OS_WIN)
+@@ -113,8 +114,13 @@ AudioManager::~AudioManager() {
+ std::unique_ptr<AudioManager> AudioManager::Create(
+     std::unique_ptr<AudioThread> audio_thread,
+     AudioLogFactory* audio_log_factory) {
++/* For Kodi the normal audio out should be disabled
+   std::unique_ptr<AudioManager> manager =
+       CreateAudioManager(std::move(audio_thread), audio_log_factory);
++*/
++  std::unique_ptr<AudioManager> manager = std::make_unique<FakeAudioManager>(
++                                              std::move(audio_thread),
++                                              audio_log_factory);
+   manager->InitializeDebugRecording();
+   return manager;
+ }
+-- 
+2.20.1
+
