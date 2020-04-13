@@ -75,7 +75,7 @@ class MainContextImpl : public MainContext {
 
   scoped_ptr<RootWindowManager> root_window_manager_;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
   bool shared_texture_enabled_;
 #endif
 
