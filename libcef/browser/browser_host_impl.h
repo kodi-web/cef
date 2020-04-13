@@ -48,6 +48,7 @@ class Widget;
 }
 #endif  // defined(USE_AURA)
 
+class CefAudioCapturer;
 class CefBrowserInfo;
 class CefBrowserPlatformDelegate;
 class CefDevToolsFrontend;
@@ -490,6 +491,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      base::ProcessId plugin_pid) override;
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
+  void OnAudioStateChanged(bool audible) override;
   bool OnMessageReceived(const IPC::Message& message) override;
   bool OnMessageReceived(const IPC::Message& message,
                          content::RenderFrameHost* render_frame_host) override;
@@ -508,6 +510,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
   bool HasObserver(Observer* observer) const;
+
+  void CreateAudioCapturer();
+  void DestroyAudioCapturer();
+
   class NavigationLock final {
    private:
     friend class CefBrowserHostImpl;
@@ -587,6 +593,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void EnsureFileDialogManager();
 
   void ConfigureAutoResize();
+
+  bool WasRecentlyAudible() const;
+  void OnRecentlyAudibleTimerFired();
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
@@ -669,6 +678,22 @@ class CefBrowserHostImpl : public CefBrowserHost,
   extensions::ExtensionHost* extension_host_ = nullptr;
   CefRefPtr<CefExtension> extension_;
   bool is_background_host_ = false;
+
+  // Used for capturing audio for CefAudioHandler
+  std::unique_ptr<CefAudioCapturer> audio_capturer_;
+
+  // Timer for determining when "recently audible" transitions to false. This
+  // starts running when a tab stops being audible, and is canceled if it starts
+  // being audible again before it fires.
+  base::OneShotTimer recently_audible_timer_;
+
+  // The tick clock this object is using.
+  const base::TickClock* tick_clock_;
+
+  // is_null() if the instance has never been audible, and is_max() if audio is
+  // currently playing. Otherwise, corresponds to the last time the tab was
+  // audible.
+  base::TimeTicks last_audible_time_;
 
   // Used with auto-resize.
   bool auto_resize_enabled_ = false;

@@ -194,6 +194,14 @@ CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop);
 ///
 CEF_EXPORT void cef_enable_highdpi_support();
 
+///
+// This function becomes used under Linux to know Sandbox need root rights.
+// Returns whether the kernel supports CLONE_NEWUSER and whether it would be
+// possible to immediately move to a new user namespace.
+// This function can be called before CefInitialize().
+///
+CEF_EXPORT int cef_sandbox_need_root();
+
 #ifdef __cplusplus
 }
 #endif

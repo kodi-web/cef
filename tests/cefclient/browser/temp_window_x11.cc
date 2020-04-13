@@ -15,6 +15,7 @@ namespace {
 
 // Create the temp window.
 ::Window CreateTempWindow() {
+#if defined(CEF_X11)
   ::Display* xdisplay = cef_get_xdisplay();
   CHECK(xdisplay != 0);
   ::Window parent_xwindow = DefaultRootWindow(xdisplay);
@@ -29,6 +30,7 @@ namespace {
                        InputOutput,
                        CopyFromParent,  // visual
                        CWBackPixmap | CWOverrideRedirect, &swa);
+#endif
 }
 
 // Close the temp window.

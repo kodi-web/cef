@@ -33,6 +33,7 @@ class CefClientCToCpp
   virtual ~CefClientCToCpp();
 
   // CefClient methods.
+  CefRefPtr<CefAudioHandler> GetAudioHandler() override;
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
   CefRefPtr<CefDialogHandler> GetDialogHandler() override;
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override;

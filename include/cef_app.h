@@ -138,6 +138,15 @@ void CefSetOSModalLoop(bool osModalLoop);
 void CefEnableHighDPISupport();
 
 ///
+// This function becomes used under Linux to know Sandbox need root rights.
+// Returns whether the kernel supports CLONE_NEWUSER and whether it would be
+// possible to immediately move to a new user namespace.
+// This function can be called before CefInitialize().
+///
+/*--cef()--*/
+bool CefSandboxNeedRoot();
+
+///
 // Implement this interface to provide handler implementations. Methods will be
 // called by the process and/or thread indicated.
 ///

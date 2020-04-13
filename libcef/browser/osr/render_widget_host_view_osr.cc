@@ -614,10 +614,10 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
     custom_cursor_info.size.height = cursor_info.custom_image.height();
   }
 
-#if defined(USE_AURA)
+/*#if defined(USE_AURA)
   content::WebCursor web_cursor(cursor_info);
 
-  ui::PlatformCursor platform_cursor;
+  CefCursorHandle platform_cursor;
   if (cursor_info.type == ui::CursorType::kCustom) {
     ui::Cursor ui_cursor(ui::CursorType::kCustom);
     SkBitmap bitmap;
@@ -643,11 +643,11 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   handler->OnCursorChange(browser_impl_.get(), native_cursor, cursor_type,
                           custom_cursor_info);
-#else
+#else*/
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.
   NOTREACHED();
-#endif
+//#endif
 }
 
 content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
