@@ -162,6 +162,16 @@ CEF_EXPORT void cef_enable_highdpi_support() {
   CefEnableHighDPISupport();
 }
 
+CEF_EXPORT int cef_sandbox_need_root() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefSandboxNeedRoot();
+
+  // Return type: bool
+  return _retval;
+}
+
 CEF_EXPORT int cef_crash_reporting_enabled() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

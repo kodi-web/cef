@@ -98,6 +98,7 @@ typedef void (*cef_run_message_loop_ptr)();
 typedef void (*cef_quit_message_loop_ptr)();
 typedef void (*cef_set_osmodal_loop_ptr)(int);
 typedef void (*cef_enable_highdpi_support_ptr)();
+typedef int (*cef_sandbox_need_root_ptr)();
 typedef int (*cef_crash_reporting_enabled_ptr)();
 typedef void (*cef_set_crash_key_value_ptr)(const cef_string_t*,
                                             const cef_string_t*);
@@ -524,6 +525,7 @@ struct libcef_pointers {
   cef_quit_message_loop_ptr cef_quit_message_loop;
   cef_set_osmodal_loop_ptr cef_set_osmodal_loop;
   cef_enable_highdpi_support_ptr cef_enable_highdpi_support;
+  cef_sandbox_need_root_ptr cef_sandbox_need_root;
   cef_crash_reporting_enabled_ptr cef_crash_reporting_enabled;
   cef_set_crash_key_value_ptr cef_set_crash_key_value;
   cef_create_directory_ptr cef_create_directory;
@@ -743,6 +745,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_quit_message_loop);
   INIT_ENTRY(cef_set_osmodal_loop);
   INIT_ENTRY(cef_enable_highdpi_support);
+  INIT_ENTRY(cef_sandbox_need_root);
   INIT_ENTRY(cef_crash_reporting_enabled);
   INIT_ENTRY(cef_set_crash_key_value);
   INIT_ENTRY(cef_create_directory);
@@ -940,7 +943,7 @@ int cef_load_library(const char* path) {
   if (g_libcef_handle)
     return 0;
 
-  g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
+  g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL /*| RTLD_FIRST*/);
   if (!g_libcef_handle) {
     fprintf(stderr, "dlopen %s: %s\n", path, dlerror());
     return 0;
@@ -1005,6 +1008,10 @@ NO_SANITIZE("cfi-icall") void cef_set_osmodal_loop(int osModalLoop) {
 
 NO_SANITIZE("cfi-icall") void cef_enable_highdpi_support() {
   g_libcef_pointers.cef_enable_highdpi_support();
+}
+
+NO_SANITIZE("cfi-icall") int cef_sandbox_need_root() {
+  return g_libcef_pointers.cef_sandbox_need_root();
 }
 
 NO_SANITIZE("cfi-icall") int cef_crash_reporting_enabled() {

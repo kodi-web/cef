@@ -23,6 +23,8 @@
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
+#elif defined(OS_LINUX)
+#include "sandbox/linux/services/credentials.h"
 #endif
 
 namespace {
@@ -298,6 +300,15 @@ void CefSetOSModalLoop(bool osModalLoop) {
   else
     CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
 #endif  // defined(OS_WIN)
+}
+
+bool CefSandboxNeedRoot() {
+  // Only linux need root, to all others give false
+#if !defined(OS_LINUX)
+  return false;
+#else
+  return !sandbox::Credentials::CanCreateProcessInNewUserNS();
+#endif
 }
 
 // CefContext
