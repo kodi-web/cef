@@ -311,10 +311,6 @@ group("cef") {
   deps = [
     ":libcef"
   ]
-
-  if (!is_linux || use_x11) {
-    deps += [ ":cefclient" ]
-  }
 }
 
 
