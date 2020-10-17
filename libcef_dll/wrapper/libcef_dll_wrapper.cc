@@ -155,6 +155,16 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefEnableHighDPISupport() {
   cef_enable_highdpi_support();
 }
 
+NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefSandboxNeedRoot() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_sandbox_need_root();
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
 NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefCrashReportingEnabled() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

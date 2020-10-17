@@ -54,3 +54,6 @@ Thumbs.db
 /include/cef_config.h
 /include/cef_version.h
 .ccls-cache/
+.kdev4/
+*.kdev4
+.vs/
