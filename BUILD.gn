@@ -1130,7 +1130,8 @@ static_library("libcef_static") {
 
     if (is_linux && !use_x11) {
       sources += [
-        "//ui/aura/test/ui_controls_factory_ozone.cc",
+        "//ui/aura/test/ui_controls_ozone.cc",
+        "//ui/aura/test/ui_controls_factory_aura_linux.cc",
         "//ui/events/test/events_test_utils.cc"
       ]
     }
