@@ -712,6 +712,8 @@ static_library("libcef_static") {
     "libcef/common/net_service/net_service_util.cc",
     "libcef/common/net_service/net_service_util.h",
     "libcef/common/parser_impl.cc",
+    "libcef/common/power_policy_controller_impl.cc",
+    "libcef/common/power_policy_controller_impl.h",
     "libcef/common/process_message_impl.cc",
     "libcef/common/process_message_impl.h",
     "libcef/common/request_impl.cc",

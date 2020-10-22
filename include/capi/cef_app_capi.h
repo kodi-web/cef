@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=04cfae434fe901644c1c78f1c30c0921518cc666$
+// $hash=c627a6a41e676b8022eb05748990a0fb90d64722$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -43,6 +43,7 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_process_handler_capi.h"
 #include "include/capi/cef_command_line_capi.h"
+#include "include/capi/cef_power_policy_controller_capi.h"
 #include "include/capi/cef_render_process_handler_capi.h"
 #include "include/capi/cef_resource_bundle_handler_capi.h"
 #include "include/capi/cef_scheme_capi.h"
@@ -111,6 +112,14 @@ typedef struct _cef_app_t {
   ///
   struct _cef_render_process_handler_t*(
       CEF_CALLBACK* get_render_process_handler)(struct _cef_app_t* self);
+
+  ///
+  // Return the handler for functionality specific to the power policy
+  // controller. This function is called on multiple threads in the browser
+  // process.
+  ///
+  struct _cef_power_policy_controller_t*(
+      CEF_CALLBACK* get_power_policy_controller)(struct _cef_app_t* self);
 } cef_app_t;
 
 ///
@@ -197,8 +206,8 @@ CEF_EXPORT void cef_enable_highdpi_support();
 ///
 // This function becomes used under Linux to know Sandbox need root rights.
 // Returns whether the kernel supports CLONE_NEWUSER and whether it would be
-// possible to immediately move to a new user namespace.
-// This function can be called before CefInitialize().
+// possible to immediately move to a new user namespace. This function can be
+// called before cef_initialize().
 ///
 CEF_EXPORT int cef_sandbox_need_root();
 

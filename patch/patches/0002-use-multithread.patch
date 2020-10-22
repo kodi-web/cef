@@ -1,0 +1,40 @@
+From 244903c50a39212de085c3de39eaeddde7dc8da6 Mon Sep 17 00:00:00 2001
+From: Alwin Esch <alwin.esch@web.de>
+Date: Wed, 21 Oct 2020 04:25:13 +0200
+Subject: [PATCH] use multithread
+
+---
+ sandbox/policy/linux/sandbox_linux.cc | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/sandbox/policy/linux/sandbox_linux.cc b/sandbox/policy/linux/sandbox_linux.cc
+index c4231d0b964a..3e075aa77688 100644
+--- sandbox/policy/linux/sandbox_linux.cc
++++ sandbox/policy/linux/sandbox_linux.cc
+@@ -295,9 +295,13 @@ bool SandboxLinux::StartSeccompBPF(SandboxType sandbox_type,
+   if (hook)
+     CHECK(std::move(hook).Run(options));
+ 
++  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
++  const std::string process_type =
++      command_line->GetSwitchValueASCII(switches::kProcessType);
++
+   // If we allow threads *and* have multiple threads, try to use TSYNC.
+   SandboxBPF::SeccompLevel seccomp_level =
+-      options.allow_threads_during_sandbox_init && !IsSingleThreaded()
++      (options.allow_threads_during_sandbox_init || process_type == switches::kGpuProcess) && !IsSingleThreaded()
+           ? SandboxBPF::SeccompLevel::MULTI_THREADED
+           : SandboxBPF::SeccompLevel::SINGLE_THREADED;
+ 
+@@ -343,7 +347,7 @@ bool SandboxLinux::InitializeSandbox(SandboxType sandbox_type,
+   // the GPU process
+   DCHECK(process_type == switches::kGpuProcess ||
+          !options.allow_threads_during_sandbox_init);
+-  if (has_threads && !options.allow_threads_during_sandbox_init) {
++  if (has_threads && !options.allow_threads_during_sandbox_init && process_type != switches::kGpuProcess) {
+     std::string error_message =
+         "InitializeSandbox() called with multiple threads in process " +
+         process_type + ".";
+-- 
+2.25.1
+

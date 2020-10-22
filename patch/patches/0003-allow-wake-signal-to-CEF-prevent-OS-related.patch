@@ -1,0 +1,157 @@
+From e37799423ecaa2c7105e02144a90955ea81136d5 Mon Sep 17 00:00:00 2001
+From: Alwin Esch <alwin.esch@web.de>
+Date: Wed, 21 Oct 2020 22:53:03 +0200
+Subject: [PATCH 2/2] allow wake signal to CEF / prevent OS related
+
+---
+ build/config/features.gni                     |  2 +
+ .../wake_lock/power_save_blocker/BUILD.gn     |  8 +-
+ .../power_save_blocker_cef.cc                 | 94 +++++++++++++++++++
+ 3 files changed, 101 insertions(+), 3 deletions(-)
+ create mode 100644 services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
+
+diff --git a/build/config/features.gni b/build/config/features.gni
+index 30359bf9cbf6..c4035960c044 100644
+--- a/build/config/features.gni
++++ b/build/config/features.gni
+@@ -31,6 +31,8 @@ declare_args() {
+   use_dbus = (is_linux || is_chromeos) && !is_chromecast
+ 
+   use_gio = is_linux && !is_chromeos && !is_chromecast
++
++  use_cef_power_save = false
+ }
+ #
+ # =============================================
+diff --git a/services/device/wake_lock/power_save_blocker/BUILD.gn b/services/device/wake_lock/power_save_blocker/BUILD.gn
+index 16468a25c7cc..e36a477c6167 100644
+--- a/services/device/wake_lock/power_save_blocker/BUILD.gn
++++ b/services/device/wake_lock/power_save_blocker/BUILD.gn
+@@ -26,11 +26,13 @@ source_set("power_save_blocker") {
+ 
+   deps = [ "//base" ]
+ 
+-  if (use_dbus) {
++  if (use_dbus && !use_cef_power_save) {
+     deps += [ "//dbus" ]
+   }
+ 
+-  if (is_android) {
++  if (use_cef_power_save) {
++    sources += [ "power_save_blocker_cef.cc" ]
++  } else if (is_android) {
+     sources += [ "power_save_blocker_android.cc" ]
+     deps += [ ":jni_headers" ]
+     public_deps += [ "//ui/android" ]
+@@ -70,7 +72,7 @@ source_set("power_save_blocker") {
+   }
+ }
+ 
+-if (is_android) {
++if (is_android && !use_cef_power_save) {
+   java_sources_needing_jni = [ "android/java/src/org/chromium/device/power_save_blocker/PowerSaveBlocker.java" ]
+ 
+   generate_jni("jni_headers") {
+diff --git a/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc b/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
+new file mode 100644
+index 000000000000..cf835ee685d4
+--- /dev/null
++++ b/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
+@@ -0,0 +1,94 @@
++// Copyright (c) 2012 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "services/device/wake_lock/power_save_blocker/power_save_blocker.h"
++
++#include <string>
++
++#include "base/bind.h"
++#include "base/check.h"
++#include "base/location.h"
++#include "base/macros.h"
++#include "base/memory/ref_counted.h"
++#include "base/notreached.h"
++#include "base/sequenced_task_runner.h"
++#include "cef/libcef/common/power_policy_controller_impl.h"
++
++namespace device {
++
++class PowerSaveBlocker::Delegate
++    : public base::RefCountedThreadSafe<PowerSaveBlocker::Delegate> {
++ public:
++  Delegate(mojom::WakeLockType type,
++           mojom::WakeLockReason reason,
++           const std::string& description,
++           scoped_refptr<base::SequencedTaskRunner> ui_task_runner)
++      : type_(type),
++        reason_(reason),
++        description_(description),
++        block_id_(0),
++        ui_task_runner_(ui_task_runner) {}
++
++  void ApplyBlock() {
++    DCHECK(ui_task_runner_->RunsTasksInCurrentSequence());
++
++    switch (type_) {
++      case mojom::WakeLockType::kPreventAppSuspension:
++        block_id_ = CefPowerPolicyControllerImpl::Get()->AddSystemWakeLock(reason_,
++                                                                           description_);
++        break;
++      case mojom::WakeLockType::kPreventDisplaySleep:
++        block_id_ = CefPowerPolicyControllerImpl::Get()->AddScreenWakeLock(reason_,
++                                                                           description_);
++        break;
++      case mojom::WakeLockType::kPreventDisplaySleepAllowDimming:
++        block_id_ = CefPowerPolicyControllerImpl::Get()->AddDimWakeLock(reason_,
++                                                                        description_);
++        break;
++      default:
++        NOTREACHED() << "Unhandled block type " << type_;
++    }
++  }
++
++  void RemoveBlock() {
++    DCHECK(ui_task_runner_->RunsTasksInCurrentSequence());
++
++    CefPowerPolicyControllerImpl::Get()->RemoveWakeLock(block_id_);
++  }
++
++ private:
++  friend class base::RefCountedThreadSafe<Delegate>;
++  virtual ~Delegate() {}
++
++  mojom::WakeLockType type_;
++  mojom::WakeLockReason reason_;
++  std::string description_;
++
++  // ID corresponding to the block request in PowerPolicyController.
++  int block_id_;
++
++  scoped_refptr<base::SequencedTaskRunner> ui_task_runner_;
++
++  DISALLOW_COPY_AND_ASSIGN(Delegate);
++};
++
++PowerSaveBlocker::PowerSaveBlocker(
++    mojom::WakeLockType type,
++    mojom::WakeLockReason reason,
++    const std::string& description,
++    scoped_refptr<base::SequencedTaskRunner> ui_task_runner,
++    scoped_refptr<base::SingleThreadTaskRunner> blocking_task_runner)
++    : delegate_(new Delegate(type, reason, description, ui_task_runner)),
++      ui_task_runner_(ui_task_runner),
++      blocking_task_runner_(blocking_task_runner) {
++  ui_task_runner_->PostTask(FROM_HERE,
++                            base::BindOnce(&Delegate::ApplyBlock, delegate_));
++}
++
++PowerSaveBlocker::~PowerSaveBlocker() {
++  ui_task_runner_->PostTask(FROM_HERE,
++                            base::BindOnce(&Delegate::RemoveBlock, delegate_));
++}
++
++}  // namespace device
+-- 
+2.25.1
+

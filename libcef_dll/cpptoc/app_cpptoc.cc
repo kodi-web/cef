@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=44e223e0d74d87cfc4aeee6bfad7e6582390a0ad$
+// $hash=32abdd7a7239a2cb511c854c67e7c1c9219c61dd$
 //
 
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/power_policy_controller_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
@@ -112,6 +113,22 @@ app_get_render_process_handler(struct _cef_app_t* self) {
   return CefRenderProcessHandlerCppToC::Wrap(_retval);
 }
 
+struct _cef_power_policy_controller_t* CEF_CALLBACK
+app_get_power_policy_controller(struct _cef_app_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefPowerPolicyController> _retval =
+      CefAppCppToC::Get(self)->GetPowerPolicyController();
+
+  // Return type: refptr_same
+  return CefPowerPolicyControllerCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -123,6 +140,7 @@ CefAppCppToC::CefAppCppToC() {
   GetStruct()->get_resource_bundle_handler = app_get_resource_bundle_handler;
   GetStruct()->get_browser_process_handler = app_get_browser_process_handler;
   GetStruct()->get_render_process_handler = app_get_render_process_handler;
+  GetStruct()->get_power_policy_controller = app_get_power_policy_controller;
 }
 
 // DESTRUCTOR - Do not edit by hand.
