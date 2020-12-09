@@ -10,10 +10,10 @@ Subject: [PATCH 2/2] allow wake signal to CEF / prevent OS related
  3 files changed, 101 insertions(+), 3 deletions(-)
  create mode 100644 services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
 
-diff --git a/build/config/features.gni b/build/config/features.gni
+diff --git build/config/features.gni build/config/features.gni
 index 30359bf9cbf6..c4035960c044 100644
---- a/build/config/features.gni
-+++ b/build/config/features.gni
+--- build/config/features.gni
++++ build/config/features.gni
 @@ -31,6 +31,8 @@ declare_args() {
    use_dbus = (is_linux || is_chromeos) && !is_chromecast
  
@@ -23,10 +23,10 @@ index 30359bf9cbf6..c4035960c044 100644
  }
  #
  # =============================================
-diff --git a/services/device/wake_lock/power_save_blocker/BUILD.gn b/services/device/wake_lock/power_save_blocker/BUILD.gn
+diff --git services/device/wake_lock/power_save_blocker/BUILD.gn services/device/wake_lock/power_save_blocker/BUILD.gn
 index 16468a25c7cc..e36a477c6167 100644
---- a/services/device/wake_lock/power_save_blocker/BUILD.gn
-+++ b/services/device/wake_lock/power_save_blocker/BUILD.gn
+--- services/device/wake_lock/power_save_blocker/BUILD.gn
++++ services/device/wake_lock/power_save_blocker/BUILD.gn
 @@ -26,11 +26,13 @@ source_set("power_save_blocker") {
  
    deps = [ "//base" ]
@@ -52,11 +52,11 @@ index 16468a25c7cc..e36a477c6167 100644
    java_sources_needing_jni = [ "android/java/src/org/chromium/device/power_save_blocker/PowerSaveBlocker.java" ]
  
    generate_jni("jni_headers") {
-diff --git a/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc b/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
+diff --git services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
 new file mode 100644
 index 000000000000..cf835ee685d4
 --- /dev/null
-+++ b/services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
++++ services/device/wake_lock/power_save_blocker/power_save_blocker_cef.cc
 @@ -0,0 +1,94 @@
 +// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
