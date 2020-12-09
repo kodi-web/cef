@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b2bc3d843217869087e7b1a381d70d687b71a8ff$
+// $hash=2b1fafde0a326e24f6986996ec4e52dc1c9eafbc$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -160,6 +160,16 @@ CEF_EXPORT void cef_enable_highdpi_support() {
 
   // Execute
   CefEnableHighDPISupport();
+}
+
+CEF_EXPORT int cef_sandbox_need_root() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefSandboxNeedRoot();
+
+  // Return type: bool
+  return _retval;
 }
 
 CEF_EXPORT int cef_crash_reporting_enabled() {

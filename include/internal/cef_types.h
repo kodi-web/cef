@@ -3193,6 +3193,15 @@ typedef enum {
   CEF_TFC_SELECT_ALL,
 } cef_text_field_commands_t;
 
+///
+// Represents commands available to TextField.
+///
+typedef enum {
+  CEF_AUDIOPLAYBACK,
+  CEF_VIDEOPLAYBACK,
+  CEF_OTHER
+} cef_wake_lock_reason_t;
+
 #ifdef __cplusplus
 }
 #endif

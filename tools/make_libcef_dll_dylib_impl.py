@@ -158,7 +158,7 @@ int cef_load_library(const char* path) {
   if (g_libcef_handle)
     return 0;
 
-  g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
+  g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL);
   if (!g_libcef_handle) {
     fprintf(stderr, "dlopen %s: %s\\n", path, dlerror());
     return 0;

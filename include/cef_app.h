@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser_process_handler.h"
 #include "include/cef_command_line.h"
+#include "include/cef_power_policy_controller.h"
 #include "include/cef_render_process_handler.h"
 #include "include/cef_resource_bundle_handler.h"
 #include "include/cef_scheme.h"
@@ -138,6 +139,15 @@ void CefSetOSModalLoop(bool osModalLoop);
 void CefEnableHighDPISupport();
 
 ///
+// This function becomes used under Linux to know Sandbox need root rights.
+// Returns whether the kernel supports CLONE_NEWUSER and whether it would be
+// possible to immediately move to a new user namespace.
+// This function can be called before CefInitialize().
+///
+/*--cef()--*/
+bool CefSandboxNeedRoot();
+
+///
 // Implement this interface to provide handler implementations. Methods will be
 // called by the process and/or thread indicated.
 ///
@@ -196,6 +206,15 @@ class CefApp : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() {
+    return nullptr;
+  }
+
+  ///
+  // Return the handler for functionality specific to the power policy controller.
+  // This method is called on multiple threads in the browser process.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefPowerPolicyController> GetPowerPolicyController() {
     return nullptr;
   }
 };

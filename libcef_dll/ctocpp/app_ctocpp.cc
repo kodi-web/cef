@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4f70dc8d5391cb5254f038ec2b3b56804b447087$
+// $hash=dcf18b046776e73fa7608c29f89901555ce72d8c$
 //
 
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/power_policy_controller_ctocpp.h"
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 
@@ -111,6 +112,22 @@ CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
 
   // Return type: refptr_same
   return CefRenderProcessHandlerCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefPowerPolicyController> CefAppCToCpp::GetPowerPolicyController() {
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_power_policy_controller))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_power_policy_controller_t* _retval =
+      _struct->get_power_policy_controller(_struct);
+
+  // Return type: refptr_same
+  return CefPowerPolicyControllerCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5d865c197ea6caabc9c68b40e65d211499e462c5$
+// $hash=40258ce685894a82dcd6f3bcdcee126728d91d4e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
@@ -41,6 +41,7 @@ class CefAppCToCpp
   CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() override;
   CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override;
   CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override;
+  CefRefPtr<CefPowerPolicyController> GetPowerPolicyController() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
